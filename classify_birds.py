@@ -8,6 +8,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+# NOTE: if using GPU:
+#   Uncomment lines 46, 106, and use 76 instead of 77
+
 def get_bird_data(augmentation=0):
 
     transform_train = transforms.Compose([
@@ -39,7 +42,8 @@ def imshow(img):
 
 def train(net, dataloader, epochs=1, start_epoch=0, lr=0.01, momentum=0.9, decay=0.0005,
           verbose=1, print_every=10, state=None, schedule={}, checkpoint_path=None):
-    # net.to(device)
+    print(device)
+    net.to(device)
     net.train()
     losses = []
     criterion = nn.CrossEntropyLoss()
@@ -69,8 +73,8 @@ def train(net, dataloader, epochs=1, start_epoch=0, lr=0.01, momentum=0.9, decay
                 g['lr'] = schedule[epoch]
 
         for i, batch in enumerate(dataloader, 0):
-            # inputs, labels = batch[0].to(device), batch[1].to(device)
-            inputs, labels = batch[0], batch[1]
+            inputs, labels = batch[0].to(device), batch[1].to(device)
+            # inputs, labels = batch[0], batch[1]
 
             optimizer.zero_grad()
 
@@ -89,20 +93,23 @@ def train(net, dataloader, epochs=1, start_epoch=0, lr=0.01, momentum=0.9, decay
         if checkpoint_path:
             state = {'epoch': epoch+1, 'net': net.state_dict(), 'optimizer': optimizer.state_dict(), 'losses': losses}
             torch.save(state, checkpoint_path + 'checkpoint-%d.pkl'%(epoch+1))
-    return losses
+    return losses, net
 
 if __name__ == '__main__':
-  data = get_bird_data()
-  dataiter = iter(data['train'])
-  images, labels = dataiter.next()
-  images = images[:8]
-  print(images.size())
+    data = get_bird_data()
+    dataiter = iter(data['train'])
+    images, labels = dataiter.next()
+    images = images[:8]
 
-  # show images
-  imshow(torchvision.utils.make_grid(images))
-  # print labels
-  print("Labels:" + ', '.join('%9s' % data['to_name'][labels[j].item()] for j in range(8)))
+    # If running on GPU:
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(device)
 
-  resnet = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
-  resnet.fc = nn.Linear(512, 555) # This will reinitialize the layer as well
-  losses = train(resnet, data['train'], epochs=5, lr=.01, print_every=10)#, checkpoint_path=checkpoints)
+    # show images
+    # imshow(torchvision.utils.make_grid(images))
+    # print labels
+    # print("Labels:" + ', '.join('%9s' % data['to_name'][labels[j].item()] for j in range(8)))
+
+    resnet = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
+    resnet.fc = nn.Linear(512, 555) # This will reinitialize the layer as well
+    losses, model = train(resnet, data['train'], epochs=5, lr=.01, print_every=10)#, checkpoint_path=checkpoints)
