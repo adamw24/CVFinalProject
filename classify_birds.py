@@ -10,22 +10,21 @@ import torch.optim as optim
 
 # NOTE: if using GPU:
 #   Uncomment lines 46, 106, and use 76 instead of 77
-
+size = 128
 def get_bird_data(augmentation=0):
-
     transform_train = transforms.Compose([
-        transforms.Resize(128),
-        transforms.RandomCrop(128, padding=8, padding_mode='edge'), # Take 128x128 crops from padded images
+        transforms.Resize(size),
+        transforms.RandomCrop(size, padding=8, padding_mode='edge'), # Take sizexsize crops from padded images
         transforms.RandomHorizontalFlip(),    # 50% of time flip image along y-axis
         transforms.ToTensor(),
     ])
 
     transform_test = transforms.Compose([
-        transforms.Resize(128),
+        transforms.Resize(size),
         transforms.ToTensor(),
     ])
     trainset = torchvision.datasets.ImageFolder(root='./birds/train', transform=transform_train)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=128, shuffle=True, num_workers=2)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=size, shuffle=True, num_workers=2)
 
     testset = torchvision.datasets.ImageFolder(root='./birds/test', transform=transform_test)
     testloader = torch.utils.data.DataLoader(testset, batch_size=1, shuffle=False, num_workers=2)
@@ -95,6 +94,40 @@ def train(net, dataloader, epochs=1, start_epoch=0, lr=0.01, momentum=0.9, decay
             torch.save(state, checkpoint_path + 'checkpoint-%d.pkl'%(epoch+1))
     return losses, net
 
+
+def predict(net, dataloader, ofname):
+    out = open(ofname, 'w')
+    out.write("path,class\n")
+    net.to(device)
+    net.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for i, (images, labels) in enumerate(dataloader, 0):
+            if i%100 == 0:
+                print(i)
+            images, labels = images.to(device), labels.to(device)
+            outputs = net(images)
+            _, predicted = torch.max(outputs.data, 1)
+            fname, _ = dataloader.dataset.samples[i]
+            out.write("test/{},{}\n".format(fname.split('/')[-1], data['to_class'][predicted.item()]))
+    out.close()
+
+
+def accuracy_score(model, dataloader) -> float:
+    correct = 0.0
+    running_accuracy = 0.0
+    for batch in dataloader:
+        inputs, labels = batch[0].to(device), batch[1].to(device)
+        y_hat = model(inputs)
+        # print("labels: ",labels)
+        # print("predicted: ", torch.argmax(y_hat,dim = 1))
+        correct = torch.where(torch.argmax(y_hat,dim = 1) == labels,1,0)
+        running_accuracy += torch.sum(correct)/len(inputs)
+        # print(torch.sum(correct)/len(inputs))
+    return running_accuracy.item()/len(dataloader)
+
+
 if __name__ == '__main__':
     data = get_bird_data()
     dataiter = iter(data['train'])
@@ -110,6 +143,10 @@ if __name__ == '__main__':
     # print labels
     # print("Labels:" + ', '.join('%9s' % data['to_name'][labels[j].item()] for j in range(8)))
 
-    resnet = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
+    resnet = torch.hub.load('pytorch/vision:v0.10.0', 'resnet34', pretrained=True)
     resnet.fc = nn.Linear(512, 555) # This will reinitialize the layer as well
-    losses, model = train(resnet, data['train'], epochs=5, lr=.01, print_every=10)#, checkpoint_path=checkpoints)
+    epochs = 5
+    lr = 0.01
+    losses, model = train(resnet, data['train'], epochs=epochs, lr=lr, print_every=10)#, checkpoint_path=checkpoints)
+    print("train accuracy: ", accuracy_score(model,data["train"]))
+
