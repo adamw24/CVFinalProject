@@ -11,6 +11,8 @@ import torch.optim as optim
 # NOTE: if using GPU:
 #   Uncomment lines 46, 106, and use 76 instead of 77
 size = 128
+checkpoints = "./checkpoints/"
+
 def get_bird_data(augmentation=0):
     transform_train = transforms.Compose([
         transforms.Resize(size),
@@ -147,6 +149,10 @@ if __name__ == '__main__':
     resnet.fc = nn.Linear(512, 555) # This will reinitialize the layer as well
     epochs = 5
     lr = 0.01
-    losses, model = train(resnet, data['train'], epochs=epochs, lr=lr, print_every=10)#, checkpoint_path=checkpoints)
+    losses, model = train(resnet, data['train'], epochs=epochs, lr=lr, print_every=10, checkpoint_path=checkpoints)
     print("train accuracy: ", accuracy_score(model,data["train"]))
 
+    state = torch.load(checkpoints + 'checkpoint-6.pkl')
+    resnet.load_state_dict(state['net'])
+
+    predict(resnet, data['test'], checkpoints + "preds.csv")
