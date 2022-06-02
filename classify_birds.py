@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 import torch
 import torchvision
@@ -43,10 +44,10 @@ def imshow(img):
 
 def train(net, dataloader, epochs=1, start_epoch=0, lr=0.01, momentum=0.9, decay=0.0005,
           verbose=1, print_every=10, state=None, schedule={}, checkpoint_path=None):
-    print(device)
-    net.to(device)
+    #net.to(device)
     net.train()
     losses = []
+    train_accs = []
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=lr, momentum=momentum, weight_decay=decay)
 
@@ -66,6 +67,7 @@ def train(net, dataloader, epochs=1, start_epoch=0, lr=0.01, momentum=0.9, decay
 
     for epoch in range(start_epoch, epochs):
         sum_loss = 0.0
+        start_time = time.time()
 
         # Update learning rate when scheduled
         if epoch in schedule:
@@ -74,8 +76,8 @@ def train(net, dataloader, epochs=1, start_epoch=0, lr=0.01, momentum=0.9, decay
                 g['lr'] = schedule[epoch]
 
         for i, batch in enumerate(dataloader, 0):
-            inputs, labels = batch[0].to(device), batch[1].to(device)
-            # inputs, labels = batch[0], batch[1]
+            #inputs, labels = batch[0].to(device), batch[1].to(device)
+            inputs, labels = batch[0], batch[1]
 
             optimizer.zero_grad()
 
@@ -89,18 +91,22 @@ def train(net, dataloader, epochs=1, start_epoch=0, lr=0.01, momentum=0.9, decay
 
             if i % print_every == print_every-1:    # print every 10 mini-batches
                 if verbose:
-                  print('[%d, %5d] loss: %.3f' % (epoch, i + 1, sum_loss / print_every))
+                    cur_time = time.time()
+                    print('[%d, %5d] loss: %.3f elapsed time: %.3f' % (epoch, i + 1, sum_loss / print_every, cur_time - start_time))
                 sum_loss = 0.0
         if checkpoint_path:
+            train_acc = accuracy_score(net, dataloader)
+            train_accs.append(train_acc)
+            print("Training accuracy: " + str(train_acc))
             state = {'epoch': epoch+1, 'net': net.state_dict(), 'optimizer': optimizer.state_dict(), 'losses': losses}
-            torch.save(state, checkpoint_path + 'checkpoint-%d.pkl'%(epoch+1))
-    return losses, net
+            torch.save(state, checkpoint_path + '-checkpoint-%d.pkl'%(epoch+1))
+    return losses, train_accs, net
 
 
 def predict(net, dataloader, ofname):
     out = open(ofname, 'w')
     out.write("path,class\n")
-    net.to(device)
+    #net.to(device)
     net.eval()
     correct = 0
     total = 0
@@ -108,7 +114,8 @@ def predict(net, dataloader, ofname):
         for i, (images, labels) in enumerate(dataloader, 0):
             if i%100 == 0:
                 print(i)
-            images, labels = images.to(device), labels.to(device)
+            #images, labels = images.to(device), labels.to(device)
+            images, labels = images, labels
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
             fname, _ = dataloader.dataset.samples[i]
@@ -120,7 +127,8 @@ def accuracy_score(model, dataloader) -> float:
     correct = 0.0
     running_accuracy = 0.0
     for batch in dataloader:
-        inputs, labels = batch[0].to(device), batch[1].to(device)
+        #inputs, labels = batch[0].to(device), batch[1].to(device)
+        inputs, labels = batch[0], batch[1]
         y_hat = model(inputs)
         # print("labels: ",labels)
         # print("predicted: ", torch.argmax(y_hat,dim = 1))
@@ -137,22 +145,35 @@ if __name__ == '__main__':
     images = images[:8]
 
     # If running on GPU:
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print(device)
+    #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    #print(device)
 
     # show images
     # imshow(torchvision.utils.make_grid(images))
     # print labels
     # print("Labels:" + ', '.join('%9s' % data['to_name'][labels[j].item()] for j in range(8)))
 
-    resnet = torch.hub.load('pytorch/vision:v0.10.0', 'resnet34', pretrained=True)
-    resnet.fc = nn.Linear(512, 555) # This will reinitialize the layer as well
+    model_names = ["resnet34", "resnet101", "densenet121", "googlenet",
+                   "resnext50_32x4d", "efficientnet_b0", "vit_b_16", "convnext_tiny"]
+
+    # Fixed hyperparams
     epochs = 5
     lr = 0.01
-    losses, model = train(resnet, data['train'], epochs=epochs, lr=lr, print_every=10, checkpoint_path=checkpoints)
-    print("train accuracy: ", accuracy_score(model,data["train"]))
+    dataloader = data["train"]
+    print_every = 10
+    for model_name in model_names:
+        print("Training: " + model_name + " -------------------------------------------")
+        cur_model = torch.hub.load("pytorch/vision:v0.10.0", model_name, pretrained=True)
+        cur_model.fc = nn.Linear(512, 555) # This will reinitialize the layer as well
+        losses, train_accs, model = train(net = cur_model,
+                                          dataloader = dataloader,
+                                          epochs=epochs,
+                                          lr=lr,
+                                          print_every = print_every,
+                                          checkpoint_path = (checkpoints + model_name))
+        np.save(model_name + "train_accs", np.array(train_accs))
+        np.save(model_name + "losses", np.array(losses))
 
-    state = torch.load(checkpoints + 'checkpoint-6.pkl')
-    resnet.load_state_dict(state['net'])
-
-    predict(resnet, data['test'], checkpoints + "preds.csv")
+    #state = torch.load(checkpoints + 'checkpoint-5.pkl')
+    #resnet.load_state_dict(state['net'])
+    #predict(resnet, data['test'], checkpoints + "preds.csv")
