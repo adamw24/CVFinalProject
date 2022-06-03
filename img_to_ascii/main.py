@@ -3,7 +3,6 @@ from cv2 import resize
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-# from uwimg import *
 
 dark_to_light1 = "()1\{\}[]?$@B\%8&WMZO0QLCJUYX#*oahkbdpqwmzcvunxrjft+~<>i!lI;:,\"^`\'. "
 dark_to_light2 = " .\':;o*O#@"[::-1]
@@ -20,7 +19,6 @@ def resize_image_to_scale(img, scale):
 
 range_mapping = interp1d([0, 255], [0, len(dark_to_light2) - 1])
 ascii_mapping = np.vectorize(int_to_ascii)
-#def simple_map(image):
 
 image = cv2.imread('dog.jpg')
 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -35,13 +33,13 @@ ascii_image = ascii_mapping(mapped_image)
  
 plt.imshow(mapped_image, cmap='gray')
 plt.colorbar()
-plt.savefig('test.jpg')
+plt.savefig('dog_grayscale_compressed.jpg')
 
-with open("test.txt", "w") as ascii_file:
-  for i in range(len(ascii_image)):
-    for j in range(len(ascii_image[0])):
-      ascii_file.write(ascii_image[i][j] + " ")
-    ascii_file.write('\n')
+
+
+with open("ascii_dog.txt", "w") as file:
+    for row in ascii_image:
+      file.write(' '.join(row.tolist())+ '\n')
 
     
 #np.savetxt("mapped.txt", ascii_image)
