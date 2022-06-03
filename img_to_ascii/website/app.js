@@ -1,18 +1,18 @@
 "use strict";
 (function () {
   window.addEventListener("load", init);
-  
+
   function init() {
-    fetch("mapped.txt")
+    fetch("ascii.txt")
       .then(response => response.text())
       .then(text => displayAscii(text));
   }
 
   function displayAscii(text) {
-    let asciiDisplayBox = qs("ascii-display");
-    asciiDisplayBox.innerHTML = text;
+    let asciiDisplayBox = qs(".ascii-display");
+    asciiDisplayBox.innerHTML += text;
   }
-  
+
   /* --------------------------- Helper Functions --------------------------- */
 
   /**
@@ -51,7 +51,6 @@
   function gen(tagName) {
     return document.createElement(tagName);
   }
-  
+
 })();
-  
-  
+
