@@ -4,17 +4,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
-# VS code characters are roughly 38:17 height to width ratio
-char_h_to_w_ratio = 38.0 / 17.0
+# VS code characters are roughly 40:17 height to width ratio
+char_h_to_w_ratio = 40.0 / 17.0
 
 dark_to_light1 = "?$@B\%8&#*oahkbdpqwmzcvunxrjft+~<>i!lI;:,\"^`\'. "[::-1]
-dark_to_light2 = " .\':;o*O#@"[::-1]
+dark_to_light2 = " .\':;o*O#@"
 dark_to_light3 = "@#B&$\%?*o+~;:\"\'`. "[::-1]
 
-edges = "|/—\\"
-deg_increment = 180 / len(edges)
+dark_edges = "|/—\\"
+light_edges = "I/=\\"
+deg_increment = 180 / len(dark_edges)
 
-chars_used = dark_to_light3
+chars_used = dark_to_light2
 img_name = "apple.jpg"
 
 def int_to_ascii(i):
@@ -50,15 +51,17 @@ plt.savefig('imgs/sobel_' + img_name)
 #plt.imshow(orientation)
 #plt.savefig('imgs/sobel_dog_deg.jpg')
 
-def map_edges_to_ascii(magnitude, orientation):
+def map_edges_to_ascii(image, magnitude, orientation):
   if (magnitude > 2500):
-    edge_num = round(orientation / deg_increment) % len(edges)
-    return edges[edge_num]
+    edge_num = round(orientation / deg_increment) % len(light_edges)
+    if image > 15:
+      return light_edges[edge_num]
+    return dark_edges[edge_num]
   else:
     return " "
 
 edge_mapping = np.vectorize(map_edges_to_ascii)
-edge_ascii = edge_mapping(magnitude, orientation)
+edge_ascii = edge_mapping(image, magnitude, orientation)
 ascii_image = ascii_mapping(mapped_image)
 
 # Override ascii in the original mapping with non-space characters in the edge image
