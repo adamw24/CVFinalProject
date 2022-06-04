@@ -5,12 +5,13 @@ from scipy.interpolate import interp1d
 
 ##################################### helper functions #####################################
 
-def resize_image_to_scale(img, w_scale, h_scale):
-  blurred = cv2.GaussianBlur(img, ksize=(5,5), sigmaX=0)
-  width = int(blurred.shape[1] * w_scale)
-  height = int(blurred.shape[0] * h_scale)
+def resize_image_to_scale(img, w_scale, h_scale, blur):
+  if blur:
+    img = cv2.GaussianBlur(img, ksize=(5,5), sigmaX=0)
+  width = int(img.shape[1] * w_scale)
+  height = int(img.shape[0] * h_scale)
   dim = (width, height)
-  return cv2.resize(blurred, dim, interpolation = cv2.INTER_AREA)
+  return cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
 
 def img_sobel(image):
   gX = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=5)
@@ -21,69 +22,73 @@ def img_sobel(image):
 
 ##################################### img to ascii functions #####################################
 
-def img_to_ascii_shading(resized_image, shading_chars):
+def ascii_range_mapping(shading_chars):
+  range_mapping = interp1d([0, 255], [0, len(shading_chars) - 1])
+  return range_mapping
+
+def ascii_shading_mapping(shading_chars):
   def int_to_ascii(i):
     return shading_chars[i]
-  range_mapping = interp1d([0, 255], [0, len(shading_chars) - 1])
   ascii_mapping = np.vectorize(int_to_ascii)
-  mapped_image = np.array(range_mapping(resized_image), dtype=int)
-  ascii_shading = ascii_mapping(mapped_image)
-  return ascii_shading
+  return ascii_mapping
 
-def img_to_ascii_edges(resized_image, light_edge_chars, dark_edge_chars,
-                       mag_threshold, light_threshold):
-  num_edges = len(light_edge_chars)
+def ascii_edge_mapping(edges, mag_threshold=2500):
+  num_edges = len(edges)
   deg_increment = 180 / num_edges
 
-  def map_edges_to_ascii(image, magnitude, orientation):
+  def map_edges_to_ascii(magnitude, orientation):
     if (magnitude > mag_threshold):
       edge_num = round(orientation / deg_increment) % num_edges
-      if image > light_threshold:
-        return light_edge_chars[edge_num]
-      return dark_edge_chars[edge_num]
+      return edges[edge_num]
     else:
       return " "
 
-  edge_mapping = np.vectorize(map_edges_to_ascii)
-  magnitude, orientation = img_sobel(resized_image)
-  edge_ascii = edge_mapping(resized_image, magnitude, orientation)
-  return edge_ascii
+  return np.vectorize(map_edges_to_ascii)
 
-def img_to_ascii_combined(resized_image, shading_chars, light_edges, dark_edges,
-                          mag_threshold=2500, light_threshold=15):
-  ascii_shading = img_to_ascii_shading(resized_image, shading_chars)
-  ascii_edges = img_to_ascii_edges(resized_image, light_edges, dark_edges,
-                                    mag_threshold, light_threshold)
-  # Overwrite ascii in the original mapping with non-space characters in the edge image
+# Overwrite ascii in the original mapping with non-space characters in the edge image
+def combine_shading_and_edges(ascii_shading, ascii_edges):
   edge_idxs = np.where(ascii_edges != " ")
   ascii_shading[edge_idxs] = ascii_edges[edge_idxs]
   return ascii_shading
 
-def write_img_to_ascii_file(img_path, outpath, scale, char_h_to_w_ratio, shading_chars, light_edges,
-                       dark_edges, mag_threshold=2500, light_threshold=15):
-  image = cv2.imread(img_path)
-  image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-  resized_image = resize_image_to_scale(image, char_h_to_w_ratio * scale, scale)
-  ascii_image = img_to_ascii_combined(resized_image, shading_chars, light_edges, dark_edges,
-                                      mag_threshold, light_threshold)
+def img_to_ascii(img, scale, char_h_to_w_ratio, range_mapping, shading_mapping, edge_mapping, blur = False):
+  image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+  resized_image = resize_image_to_scale(image, char_h_to_w_ratio * scale, scale, blur)
+  magnitude, orientation = img_sobel(resized_image)
+  mapped_image = np.array(range_mapping(resized_image), dtype=int)
+  ascii_shading = shading_mapping(mapped_image)
+  ascii_edges = edge_mapping(magnitude, orientation)
+  ascii_image = combine_shading_and_edges(ascii_shading, ascii_edges)
+  return ascii_image                                    
+
+def write_ascii_to_file(ascii_image, outpath):
   with open(outpath, "w") as ascii_file:
     for row in ascii_image:
-      ascii_file.write(''.join(row.tolist())+ "\n")
+      ascii_file.write(''.join(row.tolist()) + "\n")
 
 ##################################### Example #####################################
 
 # VS code characters are roughly 40:17 height to width ratio
 char_h_to_w_ratio = 40.0 / 17.0
 
-dark_to_light1 = "?$@B\%8&#*oahkbdpqwmzcvunxrjft+~<>i!lI;:,\"^`\'. "[::-1]
+dark_to_light1 = "?$@B\%8&#*oahkbdpqwmzcvunxrjft+~<>i!lI;:,\"^`\'. "
 dark_to_light2 = " .\':;o*O#@"[::-1]
-dark_to_light3 = "@#B&$\%?*o+~;:\"\'`. "[::-1]
+dark_to_light3 = "@#B&$\%?*o+~;:\"\'`. "
 
-dark_edges = "|/—\\"
-light_edges = "I/=\\"
+edges = "|/-\\"
 
-img_path = "imgs/apple.jpg"
-outpath = "ascii_imgs/tiny_apple.txt"
+range_mapping = ascii_range_mapping(dark_to_light2)                    
+shading_mapping = ascii_shading_mapping(dark_to_light2)
+edge_mapping = ascii_edge_mapping(edges, mag_threshold=7000)
 
-write_img_to_ascii_file(img_path, outpath, 0.07, char_h_to_w_ratio,
-                        dark_to_light2, light_edges, dark_edges, mag_threshold=6000)
+def main():
+  img_path = "imgs/plant.jpg"
+  outpath = "ascii_imgs/plant.txt"
+  image = cv2.imread(img_path)
+  ascii_image = img_to_ascii(image, 0.1, char_h_to_w_ratio, range_mapping,
+                            shading_mapping, edge_mapping, blur = True)                         
+  write_ascii_to_file(ascii_image, outpath)
+
+
+if __name__ == '__main__':
+  main()

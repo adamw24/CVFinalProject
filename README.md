@@ -5,12 +5,12 @@
 ## Overview:
 This project explores converting images and live video into ASCII. This allows for images and videos to be displayed without a GUI, for example, in Command Prompt.
 
-We had a few checkpoints for this project.
+We implemented our ASCII conversion in several steps:
 
-- `simple_ascii.py`: Maps brightness of grayscale image to ascii values ranging from characters such as '@' to '&nbsp; ', where lower brightness maps to "larger" characters.
-- `simple_live.py` : Perform "live conversions" using camera input and writes it to a file.
-- `dog_sobel.py`: Adds edge detection using a Sobel filter and replacing the edges with symbols /\\|_— based on gradient angle. In `combine.py`, combines the simple ASCII conversion with the edges.
-- `combined_live.py`: creates a combined image live using camera input. Made more friendly way of viewing the outputs ie smoother updates using the terminal.
+- `ascii_shading_mapping`: Maps pixels of an image directly to ascii characters from dark to light (e.g., " .\':;o*O#@") based on their grayscale value.
+- `ascii_edge_mapping`: Maps the edges in an image to a limited set of ascii characters (e.g., "|/—\") based on their direction. We found edge magnitude and directions using a sobel filter.
+
+Then, we display the ascii edges over the ascii shading to create our final image. Using this process, we convert camera input into a live ascii terminal output in `combined_live.py`.
 
 ---
 ## Details:
