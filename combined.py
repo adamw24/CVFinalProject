@@ -55,7 +55,7 @@ edge_ascii = edge_mapping(magnitude, orientation)
 ascii_image = ascii_mapping(mapped_image)
 
 # Override ascii in the original mapping with non-space characters in the edge image
-edge_idxs = edge_ascii[np.where(edge_ascii != " ")]
+edge_idxs = np.where(edge_ascii != " ")
 ascii_image[edge_idxs] = edge_ascii[edge_idxs]
 
 with open("imgs/combined.txt", "w") as file:
