@@ -34,7 +34,7 @@ plt.imshow(mapped_image, cmap='gray')
 plt.colorbar()
 plt.savefig('imgs/dog_grayscale_compressed.jpg')
 
-with open("imgs/ascii_dog.txt", "w") as file:
+with open("ascii_imgs/ascii_dog.txt", "w") as file:
     for row in ascii_image:
       file.write(' '.join(row.tolist())+ '\n')
 

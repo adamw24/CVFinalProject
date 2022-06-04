@@ -18,7 +18,7 @@ def resize_image_to_scale(img, scale):
   height = int(img.shape[0] * scale / 25)
   dim = (height, width)
   return cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
-  
+
 
 def map_edges_to_ascii(magnitude, orientation):
     if (magnitude > 2500):
@@ -27,7 +27,7 @@ def map_edges_to_ascii(magnitude, orientation):
     else:
       return " "
 
-    
+
 def main():
     cap = cv2.VideoCapture(0)
 

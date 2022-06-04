@@ -52,6 +52,6 @@ edge_ascii = edge_mapping(magnitude, orientation)
 
 print(edge_ascii)
 
-with open("imgs/ascii_dog_edges.txt", "w") as file:
+with open("ascii_imgs/ascii_dog_edges.txt", "w") as file:
   for row in edge_ascii:
     file.write(''.join(row.tolist())+ "\n")

@@ -4,27 +4,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
-dark_to_light1 = "()1\{\}[]?$@B\%8&WMZO0QLCJUYX#*oahkbdpqwmzcvunxrjft+~<>i!lI;:,\"^`\'. "
+# VS code characters are roughly 38:17 height to width ratio
+char_h_to_w_ratio = 38.0 / 17.0
+
+dark_to_light1 = "?$@B\%8&#*oahkbdpqwmzcvunxrjft+~<>i!lI;:,\"^`\'. "[::-1]
 dark_to_light2 = " .\':;o*O#@"[::-1]
+dark_to_light3 = "@#B&$\%?*o+~;:\"\'`. "[::-1]
 
 edges = "|/—\\"
 deg_increment = 180 / len(edges)
 
-def int_to_ascii(i):
-  return dark_to_light2[i]
+chars_used = dark_to_light3
+img_name = "apple.jpg"
 
-def resize_image_to_scale(img, scale):
-  width = int(img.shape[1] * scale / 100)
-  height = int(img.shape[0] * scale / 25)
-  dim = (height, width)
+def int_to_ascii(i):
+  return chars_used[i]
+
+def resize_image_to_scale(img, w_scale, h_scale):
+  width = int(img.shape[1] * w_scale)
+  height = int(img.shape[0] * h_scale)
+  dim = (width, height)
   return cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
 
-range_mapping = interp1d([0, 255], [0, len(dark_to_light2) - 1])
+range_mapping = interp1d([0, 255], [0, len(chars_used) - 1])
 ascii_mapping = np.vectorize(int_to_ascii)
 
-image = cv2.imread('imgs/dog.jpg')
+image = cv2.imread("imgs/" + img_name)
 image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-image = resize_image_to_scale(image, 20)
+image = resize_image_to_scale(image, char_h_to_w_ratio * 0.1, 0.1)
 
 mapped_image = range_mapping(image)
 mapped_image = np.array(mapped_image, dtype=int)
@@ -39,7 +46,7 @@ print(np.max(magnitude))
 print(np.min(orientation), np.max(orientation))
 
 plt.imshow(magnitude)
-plt.savefig('imgs/sobel_dog_mag.jpg')
+plt.savefig('imgs/sobel_' + img_name)
 #plt.imshow(orientation)
 #plt.savefig('imgs/sobel_dog_deg.jpg')
 
@@ -58,6 +65,6 @@ ascii_image = ascii_mapping(mapped_image)
 edge_idxs = np.where(edge_ascii != " ")
 ascii_image[edge_idxs] = edge_ascii[edge_idxs]
 
-with open("imgs/combined.txt", "w") as file:
+with open("ascii_imgs/combined_" + img_name.split(".")[0] + ".txt", "w") as file:
   for row in ascii_image:
     file.write(''.join(row.tolist())+ "\n")
