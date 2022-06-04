@@ -7,7 +7,7 @@ from scipy.interpolate import interp1d
 dark_to_light1 = "()1\{\}[]?$@B\%8&WMZO0QLCJUYX#*oahkbdpqwmzcvunxrjft+~<>i!lI;:,\"^`\'. "
 dark_to_light2 = " .\':;o*O#@"[::-1]
 
-edges = "|/_\\"
+edges = "|/—\\"
 deg_increment = 180 / len(edges)
 
 def int_to_ascii(i):
