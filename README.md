@@ -1,21 +1,23 @@
-# Image to ASCII: Computer Vision Final Project
-Built by Adam Wang, Kai Nylund
+# Image to ASCII: Displaying Images without a GUI
+### Computer Vision Final Project built by Adam Wang and Kai Nylund
 
 ---
 ## Overview:
-This project explores converting images into ASCII art versions. 
-We had a few checkpoints of generating ASCII images, starting off simple and then getting more complex.
+This project explores converting images and live video into ASCII. This allows for images and videos to be displayed without a GUI, for example, in Command Prompt.
+
+We had a few checkpoints for this project.
 
 - `simple_ascii.py`: Maps brightness of grayscale image to ascii values ranging from characters such as '@' to '&nbsp; ', where lower brightness maps to "larger" characters.
 - `simple_live.py` : Perform "live conversions" using camera input.
-- `dog_sobel.py`: Adds edge detection using a Sobel filter and replacing the edges with symbols /\\|_- based on gradient angle.
+- `dog_sobel.py`: Adds edge detection using a Sobel filter and replacing the edges with symbols /\\|_— based on gradient angle. In `combine.py`, combines the simple ASCII conversion with the edges.
+- 
 - Make ASCII conversion more more realistic/ smoother
 
 ---
 ## Details:
-We mainly used the OpenCV library to perform tasks such as resizing and video capture. For edge detection, we used the idea of Sobel filters from Homework 2, but used the built in OpenCV function instead. We used SciPy to map the max pixel values to the number of characters we were using.
+We mainly used the OpenCV library to perform tasks such as resizing and video capture. For edge detection, we used the idea of Sobel filters from Homework 2, but used the built in OpenCV function instead. We used SciPy to map the max pixel values to the number of characters we were using. We used the os library in python to set the terminal size for optimal viewing of live version.
 
-We used Joeseph Redmons dog photo to test our conversions.
+We used Joeseph Redmons dog photo to test our still conversions :D
 
 
 ---
@@ -37,7 +39,7 @@ Simple Pixel Conversion of dog:
 ![Simple Pixel Dog Image](./imgs/ascii_dog.png)
 Sobel Edge Conversion of dog:
 ![Sobel Edge Conversion Image](./imgs/ascii_dog_edges.png)
-Combined Edges + ASCII Conversion of dog:
+Combined image of Edges + ASCII Conversion of dog:
 ![Live ASCII Conversion Image](./imgs/combined.png)
 
 
