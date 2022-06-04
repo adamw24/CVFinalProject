@@ -58,7 +58,7 @@ def img_to_ascii_combined(resized_image, shading_chars, light_edges, dark_edges,
   ascii_shading[edge_idxs] = ascii_edges[edge_idxs]
   return ascii_shading
 
-def write_img_to_ascii(img_path, outpath, scale, char_h_to_w_ratio, shading_chars, light_edges,
+def write_img_to_ascii_file(img_path, outpath, scale, char_h_to_w_ratio, shading_chars, light_edges,
                        dark_edges, mag_threshold=2500, light_threshold=15):
   image = cv2.imread(img_path)
   image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -84,4 +84,5 @@ light_edges = "I/=\\"
 img_path = "imgs/apple.jpg"
 outpath = "ascii_imgs/combined_apple.txt"
 
-write_img_to_ascii(img_path, outpath, 0.1, char_h_to_w_ratio, dark_to_light2, light_edges, dark_edges)
+write_img_to_ascii_file(img_path, outpath, 0.1, char_h_to_w_ratio,
+                        dark_to_light2, light_edges, dark_edges)
