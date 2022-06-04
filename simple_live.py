@@ -49,19 +49,23 @@ def main():
 
         mapped_frame = range_mapping(frame)
         mapped_frame = np.array(mapped_frame, dtype=int)
-        ascii_frame = ascii_mapping(mapped_frame).tolist()
+        ascii_frame = ascii_mapping(mapped_frame)
 
         cv2.imshow('Input', frame)
+        print(ascii_frame.shape)
 
-        
-        
-        with open("live_conversion.txt", "w") as file:
-            for row in ascii_frame:
-                file.write(''.join(row)+ '\n')
-                file.flush()
-            # if cv2.waitKey(1) & 0xFF==ord('q'):
-            #     break
-            print("wrote")
+        # print(''.join(list(ascii_frame.flatten())))
+        # print('\r')
+        # with open("imgs/live_conversion.txt", "w") as live_file:
+        #     live_file.write(np.array2string(ascii_frame.flatten()))
+
+        # with open("imgs/live_conversion.txt", "w") as live_file:
+        #     for row in ascii_frame:
+        #         live_file.write(''.join(row)+ '\n')
+        #         live_file.flush()
+        #     # if cv2.waitKey(1) & 0xFF==ord('q'):
+        #     #     break
+        #     print("wrote")
         
         if cv2.waitKey(1) & 0xFF==ord('q'):
             break

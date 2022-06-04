@@ -1,6 +1,0 @@
-We could try a few different ways of generating the ascii image going from simple to complex
-
-1) just map lightness to ascii values ranging from something like # (dark) to . and space (light)
-2) add resising to image and then do the mapping
-3) add edge detection and then use the symbols /\|_- based on gradient direction
-4) do some convolution / ML thing (what would our loss function be?) to make it look more realistic
