@@ -6,10 +6,11 @@ from scipy.interpolate import interp1d
 ##################################### helper functions #####################################
 
 def resize_image_to_scale(img, w_scale, h_scale):
-  width = int(img.shape[1] * w_scale)
-  height = int(img.shape[0] * h_scale)
+  blurred = cv2.GaussianBlur(img, ksize=(5,5), sigmaX=0)
+  width = int(blurred.shape[1] * w_scale)
+  height = int(blurred.shape[0] * h_scale)
   dim = (width, height)
-  return cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+  return cv2.resize(blurred, dim, interpolation = cv2.INTER_AREA)
 
 def img_sobel(image):
   gX = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=5)
@@ -75,14 +76,14 @@ def write_img_to_ascii_file(img_path, outpath, scale, char_h_to_w_ratio, shading
 char_h_to_w_ratio = 40.0 / 17.0
 
 dark_to_light1 = "?$@B\%8&#*oahkbdpqwmzcvunxrjft+~<>i!lI;:,\"^`\'. "[::-1]
-dark_to_light2 = " .\':;o*O#@"
+dark_to_light2 = " .\':;o*O#@"[::-1]
 dark_to_light3 = "@#B&$\%?*o+~;:\"\'`. "[::-1]
 
 dark_edges = "|/—\\"
 light_edges = "I/=\\"
 
 img_path = "imgs/apple.jpg"
-outpath = "ascii_imgs/combined_apple.txt"
+outpath = "ascii_imgs/tiny_apple.txt"
 
-write_img_to_ascii_file(img_path, outpath, 0.1, char_h_to_w_ratio,
-                        dark_to_light2, light_edges, dark_edges)
+write_img_to_ascii_file(img_path, outpath, 0.07, char_h_to_w_ratio,
+                        dark_to_light2, light_edges, dark_edges, mag_threshold=6000)
