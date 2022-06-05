@@ -3,7 +3,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-import img_to_ascii as asc 
+import img_to_ascii as asc
 
 # ASCII characters to use
 dark_to_light1 = "?$@B\%8&#*oahkbdpqwmzcvunxrjft+~<>i!lI:. "[::-1]
@@ -18,7 +18,7 @@ scale = 0.15
 h_to_w_ratio = 2.1
 
 def main():
-  range_mapping = asc.ascii_range_mapping(dark_to_light4)                    
+  range_mapping = asc.ascii_range_mapping(dark_to_light4)
   shading_mapping = asc.ascii_shading_mapping(dark_to_light4)
   edge_mapping = asc.ascii_edge_mapping(light_edges)
 
@@ -28,7 +28,7 @@ def main():
   if not cap.isOpened():
       raise IOError("Cannot open webcam")
 
-  # Take a sample frame and adjust Terminal window accordingly. 
+  # Take a sample frame and adjust Terminal window accordingly.
   _, frame = cap.read()
   frame = asc.resize_image_to_scale(frame, scale*h_to_w_ratio, scale, False)
   x,y,z = frame.shape

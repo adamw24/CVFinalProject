@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+from skimage.feature import hog
 
 ##################################### helper functions #####################################
 
@@ -13,12 +14,20 @@ def resize_image_to_scale(img, w_scale, h_scale, blur):
   dim = (width, height)
   return cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
 
-def img_sobel(image):
-  gX = cv2.Sobel(image, cv2.CV_64F, 1, 0, ksize=5)
-  gY = cv2.Sobel(image, cv2.CV_64F, 0, 1, ksize=5)
+def img_sobel(img):
+  gX = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=5)
+  gY = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=5)
   magnitude = np.sqrt((gX ** 2) + (gY ** 2))
   orientation = np.arctan2(gY, gX) * (180 / np.pi) % 180
   return magnitude, orientation
+
+def img_block_average(img, block_size):
+  bin_w = img.shape[0] // block_size[0]
+  bin_h = img.shape[1] // block_size[1]
+  resized = cv2.resize(img, (bin_h * block_size[1], bin_w * block_size[0]))
+  img_bins = np.reshape(resized, (bin_w, block_size[0],
+                                  bin_h, block_size[1]))
+  return np.mean(img_bins, axis=(1, 3))
 
 ##################################### img to ascii functions #####################################
 
@@ -81,6 +90,20 @@ def img_to_ascii(img, scale, char_h_to_w_ratio, range_mapping, shading_mapping, 
   ascii_image = combine_ascii_layers(ascii_layers)
   return ascii_image
 
+def img_to_mini_hog_ascii(img, edge_mapping, num_orientations, char_h_to_w_ratio, pixels_per_cell=(8, 8)):
+  img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+  resized_image = resize_image_to_scale(img, char_h_to_w_ratio, 1, blur=False)
+  hog_features, _ = hog(resized_image, orientations=num_orientations, pixels_per_cell=pixels_per_cell,
+                    cells_per_block=(1, 1), visualize=True, feature_vector=False)
+  hog_features = np.reshape(hog_features, (resized_image.shape[0] // pixels_per_cell[0],
+                                           resized_image.shape[1] // pixels_per_cell[1], num_orientations))
+  hog_orientations = np.argmax(hog_features, axis=2)
+  hog_orientations *= (180 // num_orientations)
+  resized_m, _ = img_sobel(resized_image)
+  resized_m_avg = img_block_average(resized_m, pixels_per_cell)
+  ascii_binned_hog = edge_mapping(resized_m_avg, hog_orientations)
+  return ascii_binned_hog
+
 def write_ascii_to_file(ascii_image, outpath):
   with open(outpath, "w") as ascii_file:
     for row in ascii_image:
@@ -88,28 +111,32 @@ def write_ascii_to_file(ascii_image, outpath):
 
 ##################################### Example #####################################
 
-# VS code characters are roughly 40:17 height to width ratio
-char_h_to_w_ratio = 40.0 / 17.0
+if __name__ == '__main__':
+  # VS code characters are roughly 40:17 height to width ratio
+  char_h_to_w_ratio = 40.0 / 17.0
 
-dark_to_light1 = "?$@B%8&#*oahkbdpqwmzcvunxrjft~<>i!lI;:,\"^`\'. "
-dark_to_light2 = " .\':;o*O#@"[::-1]
-dark_to_light3 = "@#B&$%?*o~;:\"\'`. "
+  dark_to_light1 = "?$@B%8&#*oahkbdpqwmzcvunxrjft~<>i!lI;:,\"^`\'. "
+  dark_to_light2 = " .\':;o*O#@"[::-1]
+  dark_to_light3 = "@#B&$%?*o~;:\"\'`. "
 
-edges = "|/-\\"
+  edges = "|/-\\"
 
-range_mapping = ascii_range_mapping(dark_to_light2)
-shading_mapping = ascii_shading_mapping(dark_to_light2)
-edge_mapping = ascii_edge_mapping(edges, mag_threshold=7000)
-corner_mapping = ascii_corner_mapping("+", threshold=0.005)
+  range_mapping = ascii_range_mapping(dark_to_light2)
+  shading_mapping = ascii_shading_mapping(dark_to_light2)
+  edge_mapping = ascii_edge_mapping(edges, mag_threshold=6000)
+  corner_mapping = ascii_corner_mapping("+", threshold=0.002)
 
-def main():
-  img_path = "imgs/flower_frames.jpg"
-  outpath = "ascii_imgs/flower_frames.txt"
+  img_path = "imgs/plant.jpg"
+  outpath = "ascii_imgs/plant.txt"
   image = cv2.imread(img_path)
-  ascii_image = img_to_ascii(image, 0.1, char_h_to_w_ratio, range_mapping,
+  # Main example with shading, edges, and corners
+  ascii_image = img_to_ascii(image, 0.25, char_h_to_w_ratio, range_mapping,
                             shading_mapping, edge_mapping, corner_mapping, blur = True)
   write_ascii_to_file(ascii_image, outpath)
 
-
-if __name__ == '__main__':
-  main()
+  # Example of using HOG to create ascii from edges
+  pixels_per_cell=(4, 4)
+  hog_edge_mapping = ascii_edge_mapping("/-\\|", mag_threshold=1000)
+  mini_ascii = img_to_mini_hog_ascii(image, hog_edge_mapping, 4, char_h_to_w_ratio,
+                                     pixels_per_cell=pixels_per_cell)
+  write_ascii_to_file(mini_ascii, "mini_hog_plant.txt")
