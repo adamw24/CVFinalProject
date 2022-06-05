@@ -8,8 +8,8 @@ import img_to_ascii as asc
 
 dark_to_light1 = "?$@B\%8&#*oahkbdpqwmzcvunxrjft+~<>i!lI:. "[::-1]
 dark_to_light2 = " .\':;o*O#"
-dark_to_light3 = "@#B&$\%?*o+~;:\"\'`. "[::-1]
-
+dark_to_light3 = "@#$\%?*o+~;:\"\'`. "[::-1]
+dark_to_light3 = "@ #.+\'\%:?o*~;$"
 light_edges = "|/-\\"
 
 range_mapping = asc.ascii_range_mapping(dark_to_light3)                    
