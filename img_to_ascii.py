@@ -53,7 +53,6 @@ def ascii_corner_mapping(corner_char, threshold=0.03):
 # layers[0] is lowest priority, layers[-1] is highest
 def combine_ascii_layers(layers):
   layered_ascii = layers[0]
-  print(layers)
   for i in range(1, len(layers)):
     cur_layer = layers[i]
     new_idxs = np.where(cur_layer != " ")
@@ -104,8 +103,8 @@ edge_mapping = ascii_edge_mapping(edges, mag_threshold=7000)
 corner_mapping = ascii_corner_mapping("+", threshold=0.005)
 
 def main():
-  img_path = "imgs/plant.jpg"
-  outpath = "ascii_imgs/plant.txt"
+  img_path = "imgs/flower_frames.jpg"
+  outpath = "ascii_imgs/flower_frames.txt"
   image = cv2.imread(img_path)
   ascii_image = img_to_ascii(image, 0.1, char_h_to_w_ratio, range_mapping,
                             shading_mapping, edge_mapping, corner_mapping, blur = True)
