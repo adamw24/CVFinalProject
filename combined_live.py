@@ -14,14 +14,13 @@ light_edges = "|/-\\"
 
 
 scale = 0.15
-# For terminal
+# For terminal height to width ratio
 h_to_w_ratio = 2.1
 
 def main():
   range_mapping = asc.ascii_range_mapping(dark_to_light4)                    
   shading_mapping = asc.ascii_shading_mapping(dark_to_light4)
   edge_mapping = asc.ascii_edge_mapping(light_edges)
-
 
   cap = cv2.VideoCapture(0)
 
@@ -36,15 +35,15 @@ def main():
   os.system("mode {},{}".format(y,x))
 
   while True:
-      _, frame = cap.read()
-      temp = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-      # Displays the grayscale video next to the ASCII art
-      cv2.imshow("grayscale feed", temp)
-      ascii_frame = asc.img_to_ascii(frame, scale, h_to_w_ratio, range_mapping,shading_mapping,edge_mapping)
-      print(''.join(list(ascii_frame.flatten()))+'\r', end = '' )
+    _, frame = cap.read()
+    grayframe = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Displays the grayscale video next to the ASCII art
+    cv2.imshow("grayscale feed", grayframe)
+    ascii_frame = asc.img_to_ascii(frame, scale, h_to_w_ratio, range_mapping,shading_mapping,edge_mapping)
+    print(''.join(list(ascii_frame.flatten()))+'\r', end = '' )
 
-      if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+      break
 
   cap.release()
   cv2.destroyAllWindows()
