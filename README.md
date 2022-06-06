@@ -53,7 +53,7 @@ Live Demo Video:
 https://user-images.githubusercontent.com/55294835/172263666-38a6daac-11f4-4a50-8d17-40976569046e.mp4
 
 ---
-## Video:
+## Video Presentation:
 
 https://youtu.be/rKsnCe0fgdY
 
@@ -68,3 +68,9 @@ After resizing out input, we are doing an almost pixel by pixel conversion to AS
 https://towardsdatascience.com/convert-pictures-to-ascii-art-ece89582d65b
 
 https://www.geeksforgeeks.org/add-image-to-a-live-camera-feed-using-opencv-python/
+
+https://docs.opencv.org/3.4/d2/d2c/tutorial_sobel_derivatives.html 
+
+https://docs.opencv.org/4.x/dc/d0d/tutorial_py_features_harris.html 
+
+https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_hog.html 
