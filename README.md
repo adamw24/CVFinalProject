@@ -11,9 +11,18 @@ This project explores converting images and live video into ASCII. This allows f
 We implemented our ASCII conversion in several steps:
 
 - `ascii_shading_mapping`: Maps pixels of an image directly to ascii characters from dark to light (e.g., " .\':;o*O#@") based on their grayscale value.
-- `ascii_edge_mapping`: Maps the edges in an image to a limited set of ascii characters (e.g., "|/—\") based on their direction. We found edge magnitude and directions using a sobel filter.
+![Shading Image](./imgs/misc/shading.png)
 
-Then, we display the ascii edges over the ascii shading to create our final image. Using this process, we convert camera input into a live ascii terminal output in `combined_live.py`.
+- `ascii_edge_mapping`: Maps the edges in an image to a limited set of ascii characters (e.g., "|/—\") based on their direction. We found edge magnitude and directions using a sobel filter.Then, we display the ascii edges over the ascii shading to create our final image. 
+![Edges Combined Image](./imgs/misc/edges.png)
+- `ascii_corner_mapping`: Used Harris Corner detection to represent corners of objects as a +. We learned that it does not have a very large effect on the resulting image.
+![Harris Image](./imgs/misc/Harris.png)
+
+- `img_to_mini_hog_ascii`: Created a different style of ASCII art using HOG features without shading.
+![HOG Image](./imgs/misc/HOG.png)
+
+
+- `combined_live.py`: Uses `ascii_shading_mapping` and `ascii_edge_mapping` to produce a live ASCII conversion using camera input.
 
 ---
 ## Details and Resources Used:
@@ -21,17 +30,19 @@ We mainly used the OpenCV library to perform tasks such as resizing and video ca
 
 We used Joeseph Redmons dog photo as well as other images to test our conversions (can be found in `img/test_imgs`).
 
-Process of how it works: We resize the image/ camera input because the original files would create ASCII images that were too large. We then mapped the range of brightness values to the character encodings we used. However, this would make the edges unclear so we wanted to map the edges to representative characters (slashes, dashes, vertical lines, etc). We used Sobel filters to do this. We convert the edges of the image into their more accurate character encodings, and overlayed the result with our general ASCII image, creating the combined results in `combined_live.py`.
-
 ---
 
 ## Summary:
-Since ASCII text is taller than it is wide, we scaled the width and height of the images/ video frames differently so the ASCII image would look more proportional.
+Since ASCII text is taller than it is wide, we scaled the width and height of the images/ video frames differently so the ASCII image would look more proportional. Converting the shading into ASCII makes the resulting art look very realistic. To make it more of something a human would have generated, we reduced the image size and compressed it so that there were less details, and were much more realistic for a human to generate.
 
+![Resize Image](./imgs/misc/resize.png)
 
 We found that when doing live conversions based on camera input, using too many characters to convert into the ASCII image created muddled images because small differences in  brightness would cause a different character to be used. We ended up using ~14 shading character encodings. We also noticed that doing the Harris Corner detection did not have a very large impact on the ASCII art, so we omitted it in the live version to decrease computation time and improve responsiveness.
 
 One of the issues with live conversions is that the ASCII is text, not an image, and to display it we have to write to a file as opposed to showing the image. We used Notepad ++ and it prompted us to refesh every time for a 'updated' frame, so it was more of a camera snapshot than a live ASCII video. How we fixed this was printing the ASCII as a string to the terminal, and fixing the terminal size so that it would display correctly.
+
+![Terminal Image](./imgs/misc/terminal.png)
+
 
 ---
 ## Results:
@@ -47,6 +58,10 @@ Sobel Edge Conversion of dog:
 
 Combined image of Edges + ASCII Conversion of dog:
 ![Live ASCII Conversion Image](./imgs/result_imgs/combined.png)
+
+HOG Results on test images:
+![HOG Conversion Image](./imgs/result_imgs/HOGResults.png)
+
 
 Live Demo Video:
 
