@@ -34,7 +34,7 @@ We found that when doing live conversions based on camera input, using too many 
 One of the issues with live conversions is that the ASCII is text, not an image, and to display it we have to write to a file as opposed to showing the image. We used Notepad ++ and it prompted us to refesh every time for a 'updated' frame, so it was more of a camera snapshot than a live ASCII video. How we fixed this was printing the ASCII as a string to the terminal, and fixing the terminal size so that it would display correctly.
 
 ---
-## Results
+## Results:
 
 Simple 'Live' Conversion (Adam + Roommates + Cat):
 ![Simple Live Conversion Image](./imgs/result_imgs/epic_live.conversion.png)
@@ -48,7 +48,12 @@ Sobel Edge Conversion of dog:
 Combined image of Edges + ASCII Conversion of dog:
 ![Live ASCII Conversion Image](./imgs/result_imgs/combined.png)
 
+Live Demo Video:
+https://user-images.githubusercontent.com/55294835/172263666-38a6daac-11f4-4a50-8d17-40976569046e.mp4
 
+---
+## Video:
+https://youtu.be/rKsnCe0fgdY
 ---
 
 ## Next Steps:
