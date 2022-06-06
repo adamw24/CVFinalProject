@@ -38,10 +38,13 @@ One of the issues with live conversions is that the ASCII is text, not an image,
 
 Simple 'Live' Conversion (Adam + Roommates + Cat):
 ![Simple Live Conversion Image](./imgs/result_imgs/epic_live.conversion.png)
+
 Simple Pixel Conversion of dog:
 ![Simple Pixel Dog Image](./imgs/result_imgs/ascii_dog.png)
+
 Sobel Edge Conversion of dog:
 ![Sobel Edge Conversion Image](./imgs/result_imgs/ascii_dog_edges.png)
+
 Combined image of Edges + ASCII Conversion of dog:
 ![Live ASCII Conversion Image](./imgs/result_imgs/combined.png)
 
