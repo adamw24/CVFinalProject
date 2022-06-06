@@ -55,7 +55,7 @@ https://user-images.githubusercontent.com/55294835/172263666-38a6daac-11f4-4a50-
 ---
 ## Video:
 
-![](https://youtu.be/rKsnCe0fgdY)
+https://youtu.be/rKsnCe0fgdY
 
 ---
 
