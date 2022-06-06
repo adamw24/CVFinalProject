@@ -49,9 +49,6 @@ Combined image of Edges + ASCII Conversion of dog:
 ![Live ASCII Conversion Image](./imgs/result_imgs/combined.png)
 
 
-https://user-images.githubusercontent.com/55294835/172241985-6699bed8-41ac-4916-9a22-e9dd4bcea470.mp4
-
-
 ---
 
 ## Next Steps:
