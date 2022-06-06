@@ -9,11 +9,11 @@ import img_to_ascii as asc
 dark_to_light1 = "?$@B\%8&#*oahkbdpqwmzcvunxrjft+~<>i!lI:. "[::-1]
 dark_to_light2 = " .\':;o*O#"
 dark_to_light3 = "@#$\%?*o+~;:\"\'`. "[::-1]
-dark_to_light4 = "@ #.+\'\%:?o*~;$"
+dark_to_light4 = "@ #.+\'\%:?o*~$"
 light_edges = "|/-\\"
 
 
-scale = 0.15
+scale = 0.16
 # For terminal height to width ratio
 h_to_w_ratio = 2.1
 

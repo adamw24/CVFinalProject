@@ -126,8 +126,8 @@ if __name__ == '__main__':
   edge_mapping = ascii_edge_mapping(edges, mag_threshold=6000)
   corner_mapping = ascii_corner_mapping("+", threshold=0.002)
 
-  img_path = "imgs/plant.jpg"
-  outpath = "ascii_imgs/plant.txt"
+  img_path = "imgs/test_img/dog.jpg"
+  outpath = "ascii_imgs/new_dog.txt"
   image = cv2.imread(img_path)
   # Main example with shading, edges, and corners
   ascii_image = img_to_ascii(image, 0.25, char_h_to_w_ratio, range_mapping,

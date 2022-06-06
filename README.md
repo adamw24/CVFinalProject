@@ -3,8 +3,9 @@
 
 ---
 ## Problem Description:
-This project explores converting images and live video into ASCII. This allows for images and videos to be displayed without a GUI, for example, in Command Prompt.
+This project explores converting images and live video into ASCII. This allows for images and videos to be displayed without a GUI, for example, in Command Prompt. We wanted to make the features stand out while also making the computations fast.
 
+![Setup](./imgs/misc/setup.png)
 ---
 ## Approach:
 We implemented our ASCII conversion in several steps:
@@ -18,9 +19,9 @@ Then, we display the ascii edges over the ascii shading to create our final imag
 ## Details and Resources Used:
 We mainly used the OpenCV library to perform tasks such as resizing and video capture. For edge detection, we used the idea of Sobel filters from Homework 2, but used the built in OpenCV function instead. We used SciPy to map the max pixel values to the number of characters we were using. We used the os library in python to set the terminal size for optimal viewing of the combined live version (for Windows).
 
-We used Joeseph Redmons dog photo as well as other images to test our conversions.
+We used Joeseph Redmons dog photo as well as other images to test our conversions (can be found in `img/test_imgs`).
 
-Process of how it works: We resize the image/ camera input because the original files would create ASCII images that were too large. We then mapped the range of brightness values to the character encodings we used. However, this would make the edges unclear so we wanted to map the edges to representative characters (slashes, dashes, vertical lines, etc). We used Sobel filters to do this. We convert the edges of the image into their more accurate character encodings, and overlayed the result with our general ASCII image, creating the combined results in `combined.py` and `combined_live.py`.
+Process of how it works: We resize the image/ camera input because the original files would create ASCII images that were too large. We then mapped the range of brightness values to the character encodings we used. However, this would make the edges unclear so we wanted to map the edges to representative characters (slashes, dashes, vertical lines, etc). We used Sobel filters to do this. We convert the edges of the image into their more accurate character encodings, and overlayed the result with our general ASCII image, creating the combined results in `combined_live.py`.
 
 ---
 
@@ -28,29 +29,31 @@ Process of how it works: We resize the image/ camera input because the original 
 Since ASCII text is taller than it is wide, we scaled the width and height of the images/ video frames differently so the ASCII image would look more proportional.
 
 
-We found that when doing `dog_image.py`, using too many characters to convert into the ASCII image created a muddled image because small differences in the brightness would cause a different character to be used. We ended up using ~9 character encodings.
+We found that when doing live conversions based on camera input, using too many characters to convert into the ASCII image created muddled images because small differences in  brightness would cause a different character to be used. We ended up using ~14 shading character encodings.
 
 One of the issues with live conversions is that the ASCII is text, not an image, and to display it we have to write to a file as opposed to showing the image. We used Notepad ++ and it prompted us to refesh every time for a 'updated' frame, so it was more of a camera snapshot than a live ASCII video. How we fixed this was printing the ASCII as a string to the terminal, and fixing the terminal size so that it would display correctly.
 
-Here are some of the results!
+---
+## Results
 
 Simple 'Live' Conversion (Adam + Roommates + Cat):
-![Simple Live Conversion Image](./imgs/epic_live.conversion.png)
+![Simple Live Conversion Image](./imgs/result_imgs/epic_live.conversion.png)
 Simple Pixel Conversion of dog:
-![Simple Pixel Dog Image](./imgs/ascii_dog.png)
+![Simple Pixel Dog Image](./imgs/result_imgs/ascii_dog.png)
 Sobel Edge Conversion of dog:
-![Sobel Edge Conversion Image](./imgs/ascii_dog_edges.png)
+![Sobel Edge Conversion Image](./imgs/result_imgs/ascii_dog_edges.png)
 Combined image of Edges + ASCII Conversion of dog:
-![Live ASCII Conversion Image](./imgs/combined.png)
+![Live ASCII Conversion Image](./imgs/result_imgs/combined.png)
 
-
+![Daytime Live Video](./videos/daytime_adam.mov)
 ---
 
 ## Next Steps:
-After resizing out input, we are doing an almost pixel by pixel conversion to ASCII characters. It would be interesting building some network or model that would be able to smooth the images.
+After resizing out input, we are doing an almost pixel by pixel conversion to ASCII characters. It would be interesting building some network or model that would be able to smooth the images, especially when capturing live video.
 
 --- 
 
 ## References:
 https://towardsdatascience.com/convert-pictures-to-ascii-art-ece89582d65b
+
 https://www.geeksforgeeks.org/add-image-to-a-live-camera-feed-using-opencv-python/
