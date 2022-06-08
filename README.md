@@ -96,5 +96,3 @@ https://docs.opencv.org/3.4/d2/d2c/tutorial_sobel_derivatives.html
 https://docs.opencv.org/4.x/dc/d0d/tutorial_py_features_harris.html
 
 https://scikit-image.org/docs/stable/auto_examples/features_detection/plot_hog.html
-
-We used the cv2 library's functions for sobel gradients, resizing, and live video;
