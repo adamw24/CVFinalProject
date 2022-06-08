@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from skimage.feature import hog
 
@@ -79,11 +78,17 @@ def img_to_ascii(img, scale, char_h_to_w_ratio, range_mapping, shading_mapping, 
 
   if edge_mapping:
     magnitude, orientation = img_sobel(resized_image)
+    #plt.imshow(magnitude)
+    #plt.show()
+    #plt.imshow(orientation)
+    #plt.show()
     ascii_edges = edge_mapping(magnitude, orientation)
     ascii_layers.append(ascii_edges)
 
   if corner_mapping:
     corners = cv2.cornerHarris(resized_image, blockSize=2, ksize=3, k=0.04)
+    #plt.imshow(corners)
+    #plt.show()
     ascii_corners = corner_mapping(corners)
     ascii_layers.append(ascii_corners)
 
@@ -93,13 +98,17 @@ def img_to_ascii(img, scale, char_h_to_w_ratio, range_mapping, shading_mapping, 
 def img_to_mini_hog_ascii(img, edge_mapping, num_orientations, char_h_to_w_ratio, pixels_per_cell=(8, 8)):
   img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
   resized_image = resize_image_to_scale(img, char_h_to_w_ratio, 1, blur=False)
-  hog_features, _ = hog(resized_image, orientations=num_orientations, pixels_per_cell=pixels_per_cell,
+  hog_features, hog_image = hog(resized_image, orientations=num_orientations, pixels_per_cell=pixels_per_cell,
                     cells_per_block=(1, 1), visualize=True, feature_vector=False)
+  #plt.imshow(hog_image)
+  #plt.show()
   hog_features = np.reshape(hog_features, (resized_image.shape[0] // pixels_per_cell[0],
                                            resized_image.shape[1] // pixels_per_cell[1], num_orientations))
   hog_orientations = np.argmax(hog_features, axis=2)
   hog_orientations *= (180 // num_orientations)
   resized_m, _ = img_sobel(resized_image)
+  #plt.imshow(hog_orientations)
+  #plt.show()
   resized_m_avg = img_block_average(resized_m, pixels_per_cell)
   ascii_binned_hog = edge_mapping(resized_m_avg, hog_orientations)
   return ascii_binned_hog
@@ -113,30 +122,36 @@ def write_ascii_to_file(ascii_image, outpath):
 
 if __name__ == '__main__':
   # VS code characters are roughly 40:17 height to width ratio
-  char_h_to_w_ratio = 40.0 / 17.0
+  vs_code_char_h_to_w_ratio = 40.0 / 17.0
+  text_edit_ratio = 1.75
 
+  # ASCII characters used for dark -> light mapping
   dark_to_light1 = "?$@B%8&#*oahkbdpqwmzcvunxrjft~<>i!lI;:,\"^`\'. "
   dark_to_light2 = " .\':;o*O#@"[::-1]
   dark_to_light3 = "@#B&$%?*o~;:\"\'`. "
 
+  # edges for mapping
   edges = "|/-\\"
 
+  # Generate vectorized mapping functions instead of looping for efficiency
   range_mapping = ascii_range_mapping(dark_to_light2)
   shading_mapping = ascii_shading_mapping(dark_to_light2)
-  edge_mapping = ascii_edge_mapping(edges, mag_threshold=6000)
-  corner_mapping = ascii_corner_mapping("+", threshold=0.002)
+  edge_mapping = ascii_edge_mapping(edges, mag_threshold=5500)
+  corner_mapping = ascii_corner_mapping("+", threshold=0.005)
 
-  img_path = "imgs/test_img/dog.jpg"
-  outpath = "ascii_imgs/new_dog.txt"
+  # Load image we want to map to ASCII
+  img_path = "imgs/plant.jpg"
+  outpath = "ascii_imgs/plant.txt"
   image = cv2.imread(img_path)
+
   # Main example with shading, edges, and corners
-  ascii_image = img_to_ascii(image, 0.25, char_h_to_w_ratio, range_mapping,
-                            shading_mapping, edge_mapping, corner_mapping, blur = True)
+  ascii_image = img_to_ascii(image, 0.15, text_edit_ratio, range_mapping,
+                            shading_mapping, edge_mapping, corner_mapping, blur=True)
   write_ascii_to_file(ascii_image, outpath)
 
   # Example of using HOG to create ascii from edges
-  pixels_per_cell=(4, 4)
+  pixels_per_cell=(8, 8)
   hog_edge_mapping = ascii_edge_mapping("/-\\|", mag_threshold=1000)
-  mini_ascii = img_to_mini_hog_ascii(image, hog_edge_mapping, 4, char_h_to_w_ratio,
+  mini_ascii = img_to_mini_hog_ascii(image, hog_edge_mapping, 4, text_edit_ratio,
                                      pixels_per_cell=pixels_per_cell)
-  write_ascii_to_file(mini_ascii, "mini_hog_plant.txt")
+  write_ascii_to_file(mini_ascii, "plant_hog_output.txt")
