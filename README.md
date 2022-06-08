@@ -26,7 +26,7 @@ Since ASCII text is taller than it is wide, we scaled the width of images and vi
 ![Edges Combined Image](./imgs/misc/edges.png)
 
 - `ascii_corner_mapping`: Used Harris Corner detection to represent corners of objects as a +. This mapping does not have a large effect on the resulting image (and adds to the computation time) so we did not choose to include it in our live video conversion.
-![Harris Image](./imgs/misc/Harris.png)
+![Harris Image](./imgs/misc/harris.png)
 
 - `img_to_mini_hog_ascii`: To try a different approach, we also calculated the HOG output for a given image and the performed the same edge mapping for the top orientation in each bin. (e.g. orientation 0 -> /, 1 -> |, 2 -> \\, ...)
 ![HOG Image](./imgs/misc/HOG.png)
